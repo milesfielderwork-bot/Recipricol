@@ -9,6 +9,7 @@ export default function Home() {
         alt=""
         fill
         priority
+        quality={90}
         sizes="100vw"
         className="object-cover"
       />
