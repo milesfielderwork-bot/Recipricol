@@ -40,3 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .claude/scheduled_tasks.lock
+
+# Local Netlify folder
+.netlify
+deno.lock
