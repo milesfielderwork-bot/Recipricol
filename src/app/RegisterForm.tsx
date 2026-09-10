@@ -147,7 +147,7 @@ export default function RegisterForm() {
                 )}
 
                 <div>
-                  <label className={labelClass} htmlFor="heardAbout">How did you hear about us</label>
+                  <label className={labelClass} htmlFor="heardAbout">Referred by</label>
                   <input className={fieldClass} id="heardAbout" name="heardAbout" required />
                 </div>
 
