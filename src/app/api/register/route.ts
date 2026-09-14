@@ -34,5 +34,26 @@ export async function POST(request: Request) {
     ...body,
   });
 
+  const formId = process.env.FORMSPREE_FORM_ID;
+  if (!formId) {
+    console.error("[reciprocal] FORMSPREE_FORM_ID is not set; submission was not persisted");
+    return NextResponse.json({ ok: false, error: "Registration is not configured" }, { status: 500 });
+  }
+
+  const formspreeRes = await fetch(`https://formspree.io/f/${formId}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(body),
+  }).catch((err) => {
+    console.error("[reciprocal] Formspree request failed", err);
+    return null;
+  });
+
+  if (!formspreeRes || !formspreeRes.ok) {
+    const detail = formspreeRes ? await formspreeRes.text().catch(() => "") : "network error";
+    console.error("[reciprocal] Formspree rejected submission", detail);
+    return NextResponse.json({ ok: false, error: "Failed to save registration" }, { status: 502 });
+  }
+
   return NextResponse.json({ ok: true });
 }
