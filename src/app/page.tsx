@@ -22,11 +22,18 @@ export default function Home() {
       />
 
       <div className="relative z-10 mx-auto flex max-w-xl flex-col items-center gap-8 text-center">
-        <h1 className="text-3xl font-extralight uppercase tracking-[0.12em] text-[#f7f3ea] sm:text-4xl sm:tracking-[0.22em] md:text-[2.75rem] md:tracking-[0.28em]">
-          Reciprocal
+        <h1 className="w-56 sm:w-72 md:w-80">
+          <Image
+            src="/reciprocal-logo.png"
+            alt="Reciprocal"
+            width={4998}
+            height={432}
+            className="h-auto w-full"
+            priority
+          />
         </h1>
 
-        <div className="flex flex-col gap-5 text-sm font-light uppercase leading-relaxed tracking-[0.1em] text-[#f2ede4]/85 sm:text-base">
+        <div className="flex flex-col gap-5 text-sm font-light leading-relaxed tracking-[0.1em] text-[#f2ede4]/85 sm:text-base">
           <p>
             A closed, tight knit, golf community designed to connect
             members of golf clubs with nomadic golfers.
