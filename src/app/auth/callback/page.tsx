@@ -26,19 +26,25 @@ export default function AuthCallbackPage() {
 
       // Implicit flow: admin-generated links (and links opened in a
       // different browser than the one that requested them) land here with
-      // tokens in the URL hash instead. @supabase/ssr's browser client
-      // parses the hash and stores the session automatically on creation
-      // (detectSessionInUrl defaults to true) - getSession() just reads
-      // back what it already found.
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      // tokens in the URL hash instead. @supabase/ssr's browser client does
+      // not auto-detect these (detectSessionInUrl is effectively a no-op
+      // for its cookie-based storage), so they're parsed and applied by hand.
+      const hashParams = new URLSearchParams(window.location.hash.slice(1));
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
 
-      if (session) {
-        router.replace("/dashboard");
-      } else {
-        setFailed(true);
+      if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+        if (!error) {
+          router.replace("/dashboard");
+          return;
+        }
       }
+
+      setFailed(true);
     }
 
     run();
