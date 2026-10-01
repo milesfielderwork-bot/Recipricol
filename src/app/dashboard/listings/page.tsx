@@ -48,7 +48,7 @@ export default async function HostListingsPage() {
     .returns<Listing[]>();
 
   return (
-    <main className="min-h-screen w-full bg-black px-6 py-16 sm:px-12">
+    <main className="w-full px-6 py-16 sm:px-12">
       <div className="mx-auto flex max-w-2xl flex-col gap-16">
         <h1 className="text-xl font-extralight uppercase tracking-[0.25em] text-[#f7f3ea]">
           Your Rounds

@@ -25,6 +25,10 @@ export default async function DashboardPage() {
     redirect("/dashboard/listings");
   }
 
+  if (profile?.role === "nomad") {
+    redirect("/dashboard/browse");
+  }
+
   return (
     <main className="flex min-h-screen w-full items-center justify-center bg-black px-6 py-24">
       <div className="flex max-w-sm flex-col items-center gap-4 text-center">
