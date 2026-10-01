@@ -1,9 +1,16 @@
 import Image from "next/image";
+import Link from "next/link";
 import RegisterForm from "./RegisterForm";
 
 export default function Home() {
   return (
     <main className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-black px-6 py-24">
+      <Link
+        href="/login"
+        className="absolute right-6 top-6 z-20 text-[10px] uppercase tracking-[0.25em] text-[#f2ede4]/60 transition-colors hover:text-[#f2ede4] sm:right-8 sm:top-8"
+      >
+        Member Login
+      </Link>
       <Image
         src="/hero-bg.jpg"
         alt=""
