@@ -33,17 +33,28 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <header className="flex items-center justify-between border-b border-[#f2ede4]/15 px-6 py-5 sm:px-12">
           <nav className="flex gap-6">
             {role === "host" && (
-              <Link href="/dashboard/listings" className={navLinkClass}>
-                Your Rounds
-              </Link>
+              <>
+                <Link href="/dashboard/listings" className={navLinkClass}>
+                  Browse Other Hosts
+                </Link>
+                <Link href="/dashboard/listings/new" className={navLinkClass}>
+                  Post a Tee Time
+                </Link>
+                <Link href="/dashboard/listings/manage" className={navLinkClass}>
+                  Manage Live Tee Times
+                </Link>
+              </>
             )}
             {role === "nomad" && (
               <>
                 <Link href="/dashboard/browse" className={navLinkClass}>
                   Browse
                 </Link>
-                <Link href="/dashboard/requests" className={navLinkClass}>
-                  Your Requests
+                <Link href="/dashboard/requests/requested" className={navLinkClass}>
+                  Requested
+                </Link>
+                <Link href="/dashboard/requests/accepted" className={navLinkClass}>
+                  Accepted
                 </Link>
               </>
             )}

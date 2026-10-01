@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import TilePhoto from "../_components/TilePhoto";
-import Badge from "../_components/Badge";
+import TilePhoto from "../../_components/TilePhoto";
+import Badge from "../../_components/Badge";
 
 type RequestRow = {
   id: string;
@@ -16,7 +16,7 @@ type RequestRow = {
   } | null;
 };
 
-export default async function RequestsPage() {
+export default async function RequestedPage() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -34,6 +34,7 @@ export default async function RequestsPage() {
     .from("booking_requests")
     .select("id, status, message, created_at, listings(club_name, date, start_time, profiles(display_name))")
     .eq("nomad_id", user.id)
+    .eq("status", "requested")
     .order("created_at", { ascending: false })
     .returns<RequestRow[]>();
 
@@ -41,7 +42,7 @@ export default async function RequestsPage() {
     <main className="w-full px-6 py-16 sm:px-12">
       <div className="mx-auto flex max-w-6xl flex-col gap-10">
         <h1 className="text-xl font-extralight uppercase tracking-[0.25em] text-[#f7f3ea]">
-          Your Requests
+          Requested Tee Times
         </h1>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

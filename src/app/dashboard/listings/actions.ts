@@ -47,6 +47,7 @@ export async function createListing(formData: FormData): Promise<ActionResult> {
   if (error) return { ok: false, error: error.message };
 
   revalidatePath("/dashboard/listings");
+  revalidatePath("/dashboard/listings/manage");
   return { ok: true };
 }
 
@@ -64,7 +65,7 @@ export async function respondToRequest(
 
   if (error) return { ok: false, error: error.message };
 
-  revalidatePath("/dashboard/listings");
+  revalidatePath("/dashboard/listings/manage");
   return { ok: true };
 }
 

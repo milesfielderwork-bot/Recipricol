@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getJoinableListings } from "../_lib/joinableListings";
-import ListingCarousel from "../_components/ListingCarousel";
+import ListingForm from "../ListingForm";
 
-export default async function BrowsePage() {
+export default async function NewListingPage() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -15,18 +14,15 @@ export default async function BrowsePage() {
     .select("role")
     .eq("id", user.id)
     .single();
-  if (profile?.role !== "nomad") redirect("/dashboard");
-
-  const { listings, requestStatusByListing } = await getJoinableListings(supabase, user.id);
+  if (profile?.role !== "host") redirect("/dashboard");
 
   return (
     <main className="w-full px-6 py-16 sm:px-12">
-      <div className="mx-auto flex max-w-6xl flex-col gap-10">
+      <div className="mx-auto flex max-w-sm flex-col gap-10">
         <h1 className="text-xl font-extralight uppercase tracking-[0.25em] text-[#f7f3ea]">
-          Available Rounds
+          Post a Tee Time
         </h1>
-
-        <ListingCarousel listings={listings} requestStatusByListing={requestStatusByListing} />
+        <ListingForm />
       </div>
     </main>
   );

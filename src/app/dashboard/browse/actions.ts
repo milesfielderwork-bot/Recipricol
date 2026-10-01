@@ -17,7 +17,17 @@ export async function requestListing(listingId: string, message: string): Promis
     .select("role")
     .eq("id", user.id)
     .single();
-  if (profile?.role !== "nomad") return { ok: false, error: "Not authorized" };
+  if (!profile || profile.role === "admin") return { ok: false, error: "Not authorized" };
+
+  const { data: listing } = await supabase
+    .from("listings")
+    .select("host_id")
+    .eq("id", listingId)
+    .single();
+  if (!listing) return { ok: false, error: "Listing not found" };
+  if (listing.host_id === user.id) {
+    return { ok: false, error: "You can't request your own listing" };
+  }
 
   const { error } = await supabase.from("booking_requests").insert({
     listing_id: listingId,
@@ -28,5 +38,6 @@ export async function requestListing(listingId: string, message: string): Promis
   if (error) return { ok: false, error: error.message };
 
   revalidatePath("/dashboard/browse");
+  revalidatePath("/dashboard/listings");
   return { ok: true };
 }
