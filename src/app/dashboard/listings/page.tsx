@@ -2,9 +2,10 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ListingForm from "./ListingForm";
 import RequestActions from "./RequestActions";
+import TilePhoto from "../_components/TilePhoto";
+import Badge from "../_components/Badge";
 
-const sectionTitle = "mb-4 text-xs uppercase tracking-[0.25em] text-[#f2ede4]/60";
-const card = "border border-[#f2ede4]/15 p-5";
+const sectionTitle = "mb-4 font-mono text-[10px] uppercase tracking-[0.25em] text-[#f2ede4]/60";
 
 type BookingRequest = {
   id: string;
@@ -49,53 +50,56 @@ export default async function HostListingsPage() {
 
   return (
     <main className="w-full px-6 py-16 sm:px-12">
-      <div className="mx-auto flex max-w-2xl flex-col gap-16">
+      <div className="mx-auto flex max-w-6xl flex-col gap-16">
         <h1 className="text-xl font-extralight uppercase tracking-[0.25em] text-[#f7f3ea]">
           Your Rounds
         </h1>
 
-        <section>
+        <section className="max-w-sm">
           <p className={sectionTitle}>Post a round</p>
           <ListingForm />
         </section>
 
         <section>
           <p className={sectionTitle}>Your listings ({listings?.length ?? 0})</p>
-          <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {listings?.map((listing) => (
-              <div key={listing.id} className={card}>
-                <div className="flex items-baseline justify-between">
+              <div key={listing.id} className="border border-[#f2ede4]/15">
+                <TilePhoto seed={listing.id}>
+                  <div className="absolute right-2 top-2">
+                    <Badge>{listing.status}</Badge>
+                  </div>
+                </TilePhoto>
+
+                <div className="p-4">
                   <p className="text-sm uppercase tracking-[0.15em] text-[#f2ede4]">
                     {listing.club_name}
                   </p>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#f2ede4]/50">
-                    {listing.status}
+                  <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.1em] text-[#f2ede4]/50">
+                    {listing.date ?? "Flexible"} · {listing.start_time ?? "Flexible"} ·{" "}
+                    {listing.max_guests ? `${listing.max_guests} slot(s)` : "Open"}
+                    {listing.guest_fee ? ` · £${listing.guest_fee}` : ""}
                   </p>
-                </div>
-                <p className="mt-2 text-xs text-[#f2ede4]/60">
-                  {listing.date ?? "Flexible date"} · {listing.start_time ?? "Flexible time"} ·{" "}
-                  {listing.max_guests ? `${listing.max_guests} slot(s)` : "Slots open"}
-                  {listing.guest_fee ? ` · £${listing.guest_fee}` : ""}
-                </p>
 
-                {listing.booking_requests.length > 0 && (
-                  <div className="mt-4 flex flex-col gap-3 border-t border-[#f2ede4]/10 pt-4">
-                    {listing.booking_requests.map((req) => (
-                      <div key={req.id} className="flex items-center justify-between gap-4">
-                        <div>
-                          <p className="text-xs text-[#f2ede4]/85">
-                            {req.profiles?.display_name ?? "A Nomad"}
-                            {req.message ? ` — "${req.message}"` : ""}
-                          </p>
-                          <p className="text-[10px] uppercase tracking-[0.2em] text-[#f2ede4]/40">
-                            {req.status}
-                          </p>
+                  {listing.booking_requests.length > 0 && (
+                    <div className="mt-4 flex flex-col gap-3 border-t border-[#f2ede4]/10 pt-4">
+                      {listing.booking_requests.map((req) => (
+                        <div key={req.id} className="flex items-center justify-between gap-4">
+                          <div>
+                            <p className="text-xs text-[#f2ede4]/85">
+                              {req.profiles?.display_name ?? "A Nomad"}
+                              {req.message ? ` — "${req.message}"` : ""}
+                            </p>
+                            <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#f2ede4]/40">
+                              {req.status}
+                            </p>
+                          </div>
+                          {req.status === "requested" && <RequestActions requestId={req.id} />}
                         </div>
-                        {req.status === "requested" && <RequestActions requestId={req.id} />}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
             {!listings?.length && (

@@ -27,7 +27,7 @@ export default function RequestButton({
 
   if (existingStatus) {
     return (
-      <p className="text-[10px] uppercase tracking-[0.25em] text-[#f2ede4]/50">
+      <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#f2ede4]/50">
         {existingStatus}
       </p>
     );

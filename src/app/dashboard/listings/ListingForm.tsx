@@ -10,7 +10,7 @@ const pillButton =
 const fieldClass =
   "w-full border-0 border-b border-[#f2ede4]/25 bg-transparent py-2 text-sm tracking-wide text-[#f2ede4] placeholder:text-[#f2ede4]/40 focus:border-[#f2ede4] focus:outline-none";
 
-const labelClass = "mb-2 block text-[10px] uppercase tracking-[0.25em] text-[#f2ede4]/60";
+const labelClass = "mb-2 block font-mono text-[10px] uppercase tracking-[0.25em] text-[#f2ede4]/60";
 
 export default function ListingForm() {
   const router = useRouter();
