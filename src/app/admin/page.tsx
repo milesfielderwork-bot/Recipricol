@@ -2,11 +2,16 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import InviteForm from "./InviteForm";
+import TilePhoto from "../dashboard/_components/TilePhoto";
+import Badge from "../dashboard/_components/Badge";
 
-const sectionTitle = "mb-4 text-xs uppercase tracking-[0.25em] text-[#f2ede4]/60";
-const tableWrap = "overflow-x-auto border border-[#f2ede4]/15";
-const th = "whitespace-nowrap border-b border-[#f2ede4]/15 px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] text-[#f2ede4]/50";
-const td = "whitespace-nowrap px-4 py-3 text-sm text-[#f2ede4]/85";
+const sectionTitle = "mb-4 font-mono text-[10px] uppercase tracking-[0.25em] text-[#f2ede4]/60";
+const tileGrid = "grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3";
+const tile = "border border-[#f2ede4]/15";
+const tileBody = "p-4";
+const tileTitle = "text-sm uppercase tracking-[0.15em] text-[#f2ede4]";
+const tileMeta = "mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-[#f2ede4]/50";
+const emptyState = "text-sm text-[#f2ede4]/50";
 
 export default async function AdminPage() {
   const supabase = await createClient();
@@ -74,7 +79,7 @@ export default async function AdminPage() {
 
   return (
     <main className="min-h-screen w-full bg-black px-6 py-16 sm:px-12">
-      <div className="mx-auto flex max-w-5xl flex-col gap-16">
+      <div className="mx-auto flex max-w-6xl flex-col gap-16">
         <h1 className="text-xl font-extralight uppercase tracking-[0.25em] text-[#f7f3ea]">
           Admin
         </h1>
@@ -88,104 +93,75 @@ export default async function AdminPage() {
 
         <section>
           <p className={sectionTitle}>Members ({members?.length ?? 0})</p>
-          <div className={tableWrap}>
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className={th}>Name</th>
-                  <th className={th}>Role</th>
-                  <th className={th}>Phone</th>
-                  <th className={th}>Club / Handicap</th>
-                  <th className={th}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {members?.map((m) => (
-                  <tr key={m.id}>
-                    <td className={td}>{m.display_name}</td>
-                    <td className={td}>{m.role}</td>
-                    <td className={td}>{m.phone ?? "—"}</td>
-                    <td className={td}>
-                      {m.host_profiles?.home_club ?? m.nomad_profiles?.handicap ?? "—"}
-                    </td>
-                    <td className={td}>{m.status}</td>
-                  </tr>
-                ))}
-                {!members?.length && (
-                  <tr>
-                    <td className={td} colSpan={5}>No members yet.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          <div className={tileGrid}>
+            {members?.map((m) => (
+              <div key={m.id} className={tile}>
+                <TilePhoto seed={m.id}>
+                  <div className="absolute left-2 top-2">
+                    <Badge>{m.role}</Badge>
+                  </div>
+                  <div className="absolute right-2 top-2">
+                    <Badge>{m.status}</Badge>
+                  </div>
+                </TilePhoto>
+                <div className={tileBody}>
+                  <p className={tileTitle}>{m.display_name}</p>
+                  <p className={tileMeta}>{m.phone ?? "No phone on file"}</p>
+                  <p className={tileMeta}>
+                    {m.host_profiles?.home_club ?? m.nomad_profiles?.handicap ?? "—"}
+                  </p>
+                </div>
+              </div>
+            ))}
+            {!members?.length && <p className={emptyState}>No members yet.</p>}
           </div>
         </section>
 
         <section>
           <p className={sectionTitle}>Listings ({listings?.length ?? 0})</p>
-          <div className={tableWrap}>
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className={th}>Club</th>
-                  <th className={th}>Host</th>
-                  <th className={th}>Date</th>
-                  <th className={th}>Time</th>
-                  <th className={th}>Slots</th>
-                  <th className={th}>Fee</th>
-                  <th className={th}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {listings?.map((l) => (
-                  <tr key={l.id}>
-                    <td className={td}>{l.club_name}</td>
-                    <td className={td}>{l.profiles?.display_name ?? "—"}</td>
-                    <td className={td}>{l.date ?? "Flexible"}</td>
-                    <td className={td}>{l.start_time ?? "—"}</td>
-                    <td className={td}>{l.max_guests ?? "—"}</td>
-                    <td className={td}>{l.guest_fee ? `£${l.guest_fee}` : "—"}</td>
-                    <td className={td}>{l.status}</td>
-                  </tr>
-                ))}
-                {!listings?.length && (
-                  <tr>
-                    <td className={td} colSpan={7}>No listings yet.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          <div className={tileGrid}>
+            {listings?.map((l) => (
+              <div key={l.id} className={tile}>
+                <TilePhoto seed={l.id}>
+                  <div className="absolute right-2 top-2">
+                    <Badge>{l.status}</Badge>
+                  </div>
+                </TilePhoto>
+                <div className={tileBody}>
+                  <p className={tileTitle}>{l.club_name}</p>
+                  <p className={tileMeta}>Hosted by {l.profiles?.display_name ?? "—"}</p>
+                  <p className={tileMeta}>
+                    {l.date ?? "Flexible"} · {l.start_time ?? "Flexible"} ·{" "}
+                    {l.max_guests ? `${l.max_guests} slot(s)` : "Open"}
+                    {l.guest_fee ? ` · £${l.guest_fee}` : ""}
+                  </p>
+                </div>
+              </div>
+            ))}
+            {!listings?.length && <p className={emptyState}>No listings yet.</p>}
           </div>
         </section>
 
         <section>
           <p className={sectionTitle}>Booking requests ({requests?.length ?? 0})</p>
-          <div className={tableWrap}>
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className={th}>Club</th>
-                  <th className={th}>Nomad</th>
-                  <th className={th}>Message</th>
-                  <th className={th}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {requests?.map((r) => (
-                  <tr key={r.id}>
-                    <td className={td}>{r.listings?.club_name ?? "—"}</td>
-                    <td className={td}>{r.profiles?.display_name ?? "—"}</td>
-                    <td className={td}>{r.message ?? "—"}</td>
-                    <td className={td}>{r.status}</td>
-                  </tr>
-                ))}
-                {!requests?.length && (
-                  <tr>
-                    <td className={td} colSpan={4}>No requests yet.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          <div className={tileGrid}>
+            {requests?.map((r) => (
+              <div key={r.id} className={tile}>
+                <TilePhoto seed={r.id}>
+                  <div className="absolute right-2 top-2">
+                    <Badge>{r.status}</Badge>
+                  </div>
+                </TilePhoto>
+                <div className={tileBody}>
+                  <p className={tileTitle}>{r.listings?.club_name ?? "—"}</p>
+                  <p className={tileMeta}>Requested by {r.profiles?.display_name ?? "—"}</p>
+                  {r.message && (
+                    <p className="mt-2 text-xs italic text-[#f2ede4]/50">&quot;{r.message}&quot;</p>
+                  )}
+                </div>
+              </div>
+            ))}
+            {!requests?.length && <p className={emptyState}>No requests yet.</p>}
           </div>
         </section>
       </div>

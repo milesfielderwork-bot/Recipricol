@@ -16,7 +16,7 @@ The only page a non-member ever sees. Tone: quiet, exclusive, understated confid
 
 ## 2. Authenticated product (Host/Nomad dashboard)
 
-Scope: `/dashboard/listings`, `/dashboard/listings/new`, `/dashboard/listings/manage` (Host), `/dashboard/browse`, `/dashboard/requests/requested`, `/dashboard/requests/accepted` (Nomad). **Not** `/admin` — that stays a plain internal tool (tables, no tile treatment, no special styling) since it's for the founder alone, not a branded member experience.
+Scope: `/dashboard/listings`, `/dashboard/listings/new`, `/dashboard/listings/manage` (Host), `/dashboard/browse`, `/dashboard/requests/requested`, `/dashboard/requests/accepted` (Nomad), and `/admin` (Members/Listings/Booking requests all use the same tile grid now, reusing `TilePhoto`/`Badge` from `src/app/dashboard/_components/`).
 
 Direction: **subtle, structural Y2K layered onto the same quiet palette** — not a literal retro/chrome/glossy Y2K look. The homepage's moodiness carries through; Y2K shows up only in small interface details.
 
@@ -45,6 +45,7 @@ Direction: **subtle, structural Y2K layered onto the same quiet palette** — no
 | Host manage/accept-decline grid | `src/app/dashboard/listings/manage/page.tsx` |
 | Nomad browse carousel | `src/app/dashboard/browse/page.tsx` |
 | Nomad requested-status tile grid | `src/app/dashboard/requests/requested/page.tsx` |
+| Admin Members/Listings/Booking requests tile grids | `src/app/admin/page.tsx` |
 | Nomad accepted-status tile grid | `src/app/dashboard/requests/accepted/page.tsx` |
 | Fonts | `src/app/fonts.ts` (split into its own file — loading two `next/font/google` fonts in one file broke Turbopack production builds) |
 
@@ -52,4 +53,3 @@ Direction: **subtle, structural Y2K layered onto the same quiet palette** — no
 
 - Don't let the Y2K layer bleed into the public homepage, or the quiet-luxury tone into something louder — the two pages intentionally read differently.
 - If new record types get tile treatment later, reuse `TilePhoto`/`Badge` rather than inventing a new visual pattern.
-- Admin (`/admin`) is explicitly out of scope for this treatment unless asked otherwise.
