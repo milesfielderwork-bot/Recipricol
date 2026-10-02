@@ -35,10 +35,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
             {role === "host" && (
               <>
                 <Link href="/dashboard/listings" className={navLinkClass}>
-                  Browse Other Hosts
+                  Your Rounds
                 </Link>
                 <Link href="/dashboard/listings/new" className={navLinkClass}>
-                  Post a Tee Time
+                  Post a Round
+                </Link>
+                <Link href="/dashboard/listings/join" className={navLinkClass}>
+                  Join a Round
                 </Link>
                 <Link href="/dashboard/listings/manage" className={navLinkClass}>
                   Manage Live Tee Times

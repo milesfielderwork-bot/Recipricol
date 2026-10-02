@@ -16,7 +16,7 @@ The only page a non-member ever sees. Tone: quiet, exclusive, understated confid
 
 ## 2. Authenticated product (Host/Nomad dashboard)
 
-Scope: `/dashboard/listings`, `/dashboard/listings/new`, `/dashboard/listings/manage` (Host), `/dashboard/browse`, `/dashboard/requests/requested`, `/dashboard/requests/accepted` (Nomad), and `/admin` (Members/Listings/Booking requests all use the same tile grid now, reusing `TilePhoto`/`Badge` from `src/app/dashboard/_components/`).
+Scope: `/dashboard/listings`, `/dashboard/listings/new`, `/dashboard/listings/join`, `/dashboard/listings/manage` (Host), `/dashboard/browse`, `/dashboard/requests/requested`, `/dashboard/requests/accepted` (Nomad), and `/admin` (Members/Listings/Booking requests/Referrals all use the same tile grid now, reusing `TilePhoto`/`Badge` from `src/app/dashboard/_components/`).
 
 Direction: **subtle, structural Y2K layered onto the same quiet palette** — not a literal retro/chrome/glossy Y2K look. The homepage's moodiness carries through; Y2K shows up only in small interface details.
 
@@ -40,13 +40,19 @@ Direction: **subtle, structural Y2K layered onto the same quiet palette** — no
 | Joinable-listings query (shared Host/Nomad) | `src/app/dashboard/_lib/joinableListings.ts` |
 | Joinable-listings tile grid (Host landing) | `src/app/dashboard/_components/ListingGrid.tsx` |
 | Joinable-listings horizontal carousel (Nomad landing) | `src/app/dashboard/_components/ListingCarousel.tsx` |
-| Host landing (post/manage buttons + other Hosts' grid) | `src/app/dashboard/listings/page.tsx` |
+| Host landing (Post a Round / Join a Round buttons + referral) | `src/app/dashboard/listings/page.tsx` |
 | Host post-a-round form | `src/app/dashboard/listings/new/page.tsx` |
+| Host join-a-round grid (other Hosts' open rounds) | `src/app/dashboard/listings/join/page.tsx` |
 | Host manage/accept-decline grid | `src/app/dashboard/listings/manage/page.tsx` |
-| Nomad browse carousel | `src/app/dashboard/browse/page.tsx` |
+| Nomad browse carousel + referral | `src/app/dashboard/browse/page.tsx` |
 | Nomad requested-status tile grid | `src/app/dashboard/requests/requested/page.tsx` |
-| Admin Members/Listings/Booking requests tile grids | `src/app/admin/page.tsx` |
 | Nomad accepted-status tile grid | `src/app/dashboard/requests/accepted/page.tsx` |
+| Admin Members/Listings/Booking requests/Referrals tile grids | `src/app/admin/page.tsx` |
+| Shared member intake form fields (role/email/name/phone/club or handicap) | `src/app/dashboard/_components/MemberIntakeForm.tsx` |
+| "Introduce New Member" collapsible trigger (wraps a form) | `src/app/dashboard/_components/IntroduceMemberButton.tsx` |
+| Host/Nomad referral submission (Introduce New Member) | `src/app/dashboard/_components/ReferralSection.tsx`, `src/app/dashboard/_lib/referralActions.ts` |
+| Admin real invite (now behind Introduce New Member too) | `src/app/admin/InviteForm.tsx`, `src/app/admin/actions.ts` |
+| Admin referral review (Invite / Dismiss) | `src/app/admin/ReferralActions.tsx` |
 | Fonts | `src/app/fonts.ts` (split into its own file — loading two `next/font/google` fonts in one file broke Turbopack production builds) |
 
 ## Things to watch

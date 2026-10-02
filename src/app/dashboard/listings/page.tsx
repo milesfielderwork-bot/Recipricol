@@ -1,10 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getJoinableListings } from "../_lib/joinableListings";
-import ListingGrid from "../_components/ListingGrid";
-
-const sectionTitle = "mb-4 font-mono text-[10px] uppercase tracking-[0.25em] text-[#f2ede4]/60";
+import ReferralSection from "../_components/ReferralSection";
 
 const pillButton =
   "inline-flex items-center justify-center rounded-full border border-[#f2ede4]/60 px-8 py-3 text-xs uppercase tracking-[0.3em] text-[#f2ede4] transition-colors duration-300 hover:bg-[#f2ede4] hover:text-black";
@@ -23,8 +20,6 @@ export default async function HostListingsPage() {
     .single();
   if (profile?.role !== "host") redirect("/dashboard");
 
-  const { listings, requestStatusByListing } = await getJoinableListings(supabase, user.id);
-
   return (
     <main className="w-full px-6 py-16 sm:px-12">
       <div className="mx-auto flex max-w-6xl flex-col gap-16">
@@ -34,22 +29,15 @@ export default async function HostListingsPage() {
           </h1>
           <div className="flex flex-wrap gap-4">
             <Link href="/dashboard/listings/new" className={pillButton}>
-              Post a Tee Time
+              Post a Round
             </Link>
-            <Link href="/dashboard/listings/manage" className={pillButton}>
-              Manage Live Tee Times
+            <Link href="/dashboard/listings/join" className={pillButton}>
+              Join a Round
             </Link>
           </div>
         </div>
 
-        <section>
-          <p className={sectionTitle}>Other Hosts&apos; Rounds</p>
-          <ListingGrid
-            listings={listings}
-            requestStatusByListing={requestStatusByListing}
-            emptyMessage="No other Hosts have open rounds right now."
-          />
-        </section>
+        <ReferralSection />
       </div>
     </main>
   );

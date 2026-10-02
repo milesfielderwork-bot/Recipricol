@@ -23,6 +23,57 @@ async function requireAdmin() {
   return profile?.role === "admin" ? user : null;
 }
 
+type InviteDetails = {
+  email: string;
+  role: "host" | "nomad";
+  displayName: string;
+  phone: string | null;
+  homeClub: string | null;
+  handicap: string | null;
+};
+
+async function performInvite(details: InviteDetails): Promise<InviteResult> {
+  const headerList = await headers();
+  const host = headerList.get("host");
+  const protocol = host?.startsWith("localhost") ? "http" : "https";
+  const origin = `${protocol}://${host}`;
+
+  const adminClient = createAdminClient();
+
+  const { data: inviteData, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(
+    details.email,
+    { redirectTo: `${origin}/auth/callback` }
+  );
+
+  if (inviteError || !inviteData.user) {
+    return { ok: false, error: inviteError?.message ?? "Invite failed" };
+  }
+
+  const userId = inviteData.user.id;
+
+  const { error: profileError } = await adminClient.from("profiles").insert({
+    id: userId,
+    role: details.role,
+    display_name: details.displayName,
+    phone: details.phone,
+  });
+
+  if (profileError) {
+    return { ok: false, error: profileError.message };
+  }
+
+  const { error: roleProfileError } =
+    details.role === "host"
+      ? await adminClient.from("host_profiles").insert({ profile_id: userId, home_club: details.homeClub })
+      : await adminClient.from("nomad_profiles").insert({ profile_id: userId, handicap: details.handicap });
+
+  if (roleProfileError) {
+    return { ok: false, error: roleProfileError.message };
+  }
+
+  return { ok: true };
+}
+
 export async function inviteMember(formData: FormData): Promise<InviteResult> {
   const admin = await requireAdmin();
   if (!admin) return { ok: false, error: "Not authorized" };
@@ -38,43 +89,60 @@ export async function inviteMember(formData: FormData): Promise<InviteResult> {
     return { ok: false, error: "Missing required fields" };
   }
 
-  const headerList = await headers();
-  const host = headerList.get("host");
-  const protocol = host?.startsWith("localhost") ? "http" : "https";
-  const origin = `${protocol}://${host}`;
+  const result = await performInvite({ email, role, displayName, phone, homeClub, handicap });
+  if (!result.ok) return result;
+
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+export async function respondToReferral(
+  referralId: string,
+  action: "invited" | "dismissed"
+): Promise<InviteResult> {
+  const admin = await requireAdmin();
+  if (!admin) return { ok: false, error: "Not authorized" };
 
   const adminClient = createAdminClient();
 
-  const { data: inviteData, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(
-    email,
-    { redirectTo: `${origin}/auth/callback` }
-  );
-
-  if (inviteError || !inviteData.user) {
-    return { ok: false, error: inviteError?.message ?? "Invite failed" };
+  if (action === "dismissed") {
+    const { error } = await adminClient
+      .from("referrals")
+      .update({ status: "dismissed" })
+      .eq("id", referralId);
+    if (error) return { ok: false, error: error.message };
+    revalidatePath("/admin");
+    return { ok: true };
   }
 
-  const userId = inviteData.user.id;
+  const { data: referral, error: referralError } = await adminClient
+    .from("referrals")
+    .select("email, role, display_name, phone, home_club, handicap, status")
+    .eq("id", referralId)
+    .single();
 
-  const { error: profileError } = await adminClient.from("profiles").insert({
-    id: userId,
-    role,
-    display_name: displayName,
-    phone,
+  if (referralError || !referral) {
+    return { ok: false, error: referralError?.message ?? "Referral not found" };
+  }
+  if (referral.status !== "pending") {
+    return { ok: false, error: "Referral already handled" };
+  }
+
+  const result = await performInvite({
+    email: referral.email,
+    role: referral.role,
+    displayName: referral.display_name,
+    phone: referral.phone,
+    homeClub: referral.home_club,
+    handicap: referral.handicap,
   });
+  if (!result.ok) return result;
 
-  if (profileError) {
-    return { ok: false, error: profileError.message };
-  }
-
-  const { error: roleProfileError } =
-    role === "host"
-      ? await adminClient.from("host_profiles").insert({ profile_id: userId, home_club: homeClub })
-      : await adminClient.from("nomad_profiles").insert({ profile_id: userId, handicap });
-
-  if (roleProfileError) {
-    return { ok: false, error: roleProfileError.message };
-  }
+  const { error: statusError } = await adminClient
+    .from("referrals")
+    .update({ status: "invited" })
+    .eq("id", referralId);
+  if (statusError) return { ok: false, error: statusError.message };
 
   revalidatePath("/admin");
   return { ok: true };

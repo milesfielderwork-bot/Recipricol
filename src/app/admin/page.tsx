@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import InviteForm from "./InviteForm";
+import ReferralActions from "./ReferralActions";
 import TilePhoto from "../dashboard/_components/TilePhoto";
 import Badge from "../dashboard/_components/Badge";
 
@@ -58,24 +59,39 @@ export default async function AdminPage() {
     listings: { club_name: string } | null;
     profiles: { display_name: string } | null;
   };
+  type Referral = {
+    id: string;
+    role: string;
+    email: string;
+    display_name: string;
+    status: string;
+    created_at: string;
+    profiles: { display_name: string } | null;
+  };
 
-  const [{ data: members }, { data: listings }, { data: requests }] = await Promise.all([
-    admin
-      .from("profiles")
-      .select("id, role, display_name, phone, status, created_at, host_profiles(home_club), nomad_profiles(handicap)")
-      .order("created_at", { ascending: false })
-      .returns<Member[]>(),
-    admin
-      .from("listings")
-      .select("id, club_name, date, start_time, max_guests, guest_fee, status, created_at, profiles(display_name)")
-      .order("created_at", { ascending: false })
-      .returns<Listing[]>(),
-    admin
-      .from("booking_requests")
-      .select("id, status, message, created_at, listings(club_name), profiles(display_name)")
-      .order("created_at", { ascending: false })
-      .returns<BookingRequest[]>(),
-  ]);
+  const [{ data: members }, { data: listings }, { data: requests }, { data: referrals }] =
+    await Promise.all([
+      admin
+        .from("profiles")
+        .select("id, role, display_name, phone, status, created_at, host_profiles(home_club), nomad_profiles(handicap)")
+        .order("created_at", { ascending: false })
+        .returns<Member[]>(),
+      admin
+        .from("listings")
+        .select("id, club_name, date, start_time, max_guests, guest_fee, status, created_at, profiles(display_name)")
+        .order("created_at", { ascending: false })
+        .returns<Listing[]>(),
+      admin
+        .from("booking_requests")
+        .select("id, status, message, created_at, listings(club_name), profiles(display_name)")
+        .order("created_at", { ascending: false })
+        .returns<BookingRequest[]>(),
+      admin
+        .from("referrals")
+        .select("id, role, email, display_name, status, created_at, profiles:referred_by(display_name)")
+        .order("created_at", { ascending: false })
+        .returns<Referral[]>(),
+    ]);
 
   return (
     <main className="min-h-screen w-full bg-black px-6 py-16 sm:px-12">
@@ -85,10 +101,7 @@ export default async function AdminPage() {
         </h1>
 
         <section>
-          <p className={sectionTitle}>Invite a new member</p>
-          <div className="max-w-sm">
-            <InviteForm />
-          </div>
+          <InviteForm />
         </section>
 
         <section>
@@ -162,6 +175,35 @@ export default async function AdminPage() {
               </div>
             ))}
             {!requests?.length && <p className={emptyState}>No requests yet.</p>}
+          </div>
+        </section>
+
+        <section>
+          <p className={sectionTitle}>Referrals ({referrals?.length ?? 0})</p>
+          <div className={tileGrid}>
+            {referrals?.map((r) => (
+              <div key={r.id} className={tile}>
+                <TilePhoto seed={r.id}>
+                  <div className="absolute left-2 top-2">
+                    <Badge>{r.role}</Badge>
+                  </div>
+                  <div className="absolute right-2 top-2">
+                    <Badge>{r.status}</Badge>
+                  </div>
+                </TilePhoto>
+                <div className={tileBody}>
+                  <p className={tileTitle}>{r.display_name}</p>
+                  <p className={tileMeta}>{r.email}</p>
+                  <p className={tileMeta}>Introduced by {r.profiles?.display_name ?? "—"}</p>
+                  {r.status === "pending" && (
+                    <div className="mt-4 border-t border-[#f2ede4]/10 pt-4">
+                      <ReferralActions referralId={r.id} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+            {!referrals?.length && <p className={emptyState}>No referrals yet.</p>}
           </div>
         </section>
       </div>
